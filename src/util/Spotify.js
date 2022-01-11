@@ -35,6 +35,7 @@ const Spotify = {
             }
         );
         let jsonResponse = await response.json();
+        console.log(jsonResponse);
         return jsonResponse.tracks.items.map(
             track => {
                 return {
@@ -47,6 +48,54 @@ const Spotify = {
             }
         );
     },
+    async savePlaylist(playlistName, tracks){
+        this.accessToken = this.getAccessToken();
+        let response = await fetch(
+            'https://api.spotify.com/v1/me',
+            {
+                headers: {
+                    Authorization: `Bearer ${this.accessToken}`,
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+        let jsonResponse = await response.json();
+        console.log(jsonResponse);
+        const userId = jsonResponse.id;
+
+        response = await fetch(
+            `https://api.spotify.com/v1/users/${userId}/playlists`,
+            {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${this.accessToken}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: playlistName,
+                })
+            }
+        );
+        jsonResponse = await response.json();
+        console.log(jsonResponse);
+        let playlistId = jsonResponse.id;
+
+        response = await fetch(
+            `https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}/tracks`,
+            {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${this.accessToken}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    uris: tracks
+                })
+            }
+        );
+        jsonResponse = await response.json();
+        console.log(jsonResponse);
+    }
 };
 
 export default Spotify;
